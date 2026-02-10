@@ -42,12 +42,15 @@ Refer to the pinout diagram below:
 - Robotics
 - Industrial automation
 
+## Author
+Jeffin Paul
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # PROJECTS
 
 ## UART - Bluetooth using STM32 and HC-05
 
+Components used are STM32f411vet6, HC-05
 On typing the command "on" and "off" in the mobile app(serial bluetooth) the LED in the STM32.
 Here we use HC-05, STM32F411VET6 and a mobile app 'serial monitor'.
 
@@ -58,13 +61,21 @@ Here we use HC-05, STM32F411VET6 and a mobile app 'serial monitor'.
 
 ## Home Automation
 
+Components used are STM32f411vet6, HC-05
 '1' - LED on
 '0' - LED off
 
 ![WhatsApp Image 2026-02-09 at 3 06 14 PM](https://github.com/user-attachments/assets/f5495906-0cb2-491c-84c7-ace5ef989b2a)
 ![WhatsApp Image 2026-02-09 at 2 58 32 PM](https://github.com/user-attachments/assets/ce3833ba-ae07-4496-84fe-f1e4ae2d5874)
 
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+## Pressure and Temperature checking
+Components used are STM32f411vet6, BMP280(pressure sensor)
+Connections: Connect BMP280 to STM32 and Vcc is 3.3V (using voltage divider)
+
+<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/c3002d11-25cd-4d49-8c42-fffe193b091b" />
+<img width="1522" height="749" alt="image" src="https://github.com/user-attachments/assets/5e6b0856-10d8-48f9-938c-a43906d89389" />
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ## LED Blinking
