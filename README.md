@@ -1,91 +1,206 @@
-# STM32F411VET6 – Introduction
+# STM32F411VET6 – Overview
 
-## Overview
-The STM32F411VET6 is a 32-bit microcontroller from STMicroelectronics based on the ARM Cortex-M4 core. It is designed for high-performance embedded applications and supports DSP and floating-point operations.
+## Introduction
+The STM32F411VET6 is a 32-bit microcontroller from STMicroelectronics based on the ARM Cortex-M4 core.
+It is designed for high-performance embedded applications and supports DSP and floating-point operations.
+
+---
 
 ## Key Features
 - ARM Cortex-M4 core with FPU
-- Maximum clock frequency: 100 MHz
-- 512 KB Flash memory
+- Maximum Clock Frequency: 100 MHz
+- 512 KB Flash Memory
 - 128 KB SRAM
-- Multiple GPIO ports
+- Multiple GPIO Ports
 - Timers (Advanced, General-purpose, Basic)
-- ADC (12-bit)
+- 12-bit ADC
 - USART, SPI, I2C, USB OTG FS
-- DMA controller
-- Low-power modes
+- DMA Controller
+- Low-Power Modes
+
+---
 
 ## Architecture
-STM32F411VET6 uses a Harvard architecture with a 3-stage pipeline, enabling high-speed execution and efficient instruction handling.
+The STM32F411VET6 uses Harvard architecture with a 3-stage pipeline, enabling fast execution and efficient instruction handling.
+
+---
 
 ## Pinout
+
 Refer to the pinout diagram below:
 
-<img width="1193" height="744" alt="image" src="https://github.com/user-attachments/assets/bcb766ee-6d64-48ed-9aaf-557b12a3e8de" />
+![STM32F411 Pinout](https://github.com/user-attachments/assets/bcb766ee-6d64-48ed-9aaf-557b12a3e8de)
+
+---
 
 ## Development Tools
 - STM32CubeIDE
 - STM32CubeMX
 - HAL / LL Drivers
-- ST-Link (Programmer/Debugger)
+- ST-Link Programmer / Debugger
+
+---
 
 ## Why STM32?
 - High performance compared to 8-bit MCUs
-- Large peripheral set
+- Rich peripheral support
 - Strong ecosystem and documentation
-- Industry adoption
+- Widely used in industry
+
+---
 
 ## Applications
-- Motor control
-- IoT and connectivity projects
-- Signal processing
+- Motor Control
+- IoT Systems
+- Signal Processing
 - Robotics
-- Industrial automation
+- Industrial Automation
+
+---
 
 ## Author
-Jeffin Paul
+**Jeffin Paul**
 
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# PROJECTS
+---
 
-## UART - Bluetooth using STM32 and HC-05
+# 📁 PROJECTS
 
-Components used are STM32f411vet6, HC-05
-On typing the command "on" and "off" in the mobile app(serial bluetooth) the LED in the STM32.
-Here we use HC-05, STM32F411VET6 and a mobile app 'serial monitor'.
+---
 
-[<img width="692" height="1536" alt="image" src="https://github.com/user-attachments/assets/1deafa98-5ce0-4481-97fb-904bd466de73" />](https://chatgpt.com/backend-api/estuary/content?id=file_0000000038c072068e85d8cdb9522105&ts=491722&p=fs&cid=1&sig=a2c2f0cda3b284b978ad29dd3b1f4c431bf2d57bf6889643354fc5f1a486a1f0&v=0)
-<img width="694" height="1536" alt="image" src="https://github.com/user-attachments/assets/24f418b1-cc2c-473e-843d-ce79be51ae78" />
+## 📡 UART – Bluetooth Control using STM32 and HC-05
 
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+This project demonstrates wireless LED control using STM32F411VET6 and HC-05 Bluetooth module.
 
-## Home Automation
+Users can send `on` and `off` commands using a mobile app to control an LED.
 
-Components used are STM32f411vet6, HC-05
-'1' - LED on
-'0' - LED off
+### Components
+- STM32F411VET6
+- HC-05 Bluetooth Module
+- LED + Resistor
+- Android Phone
 
-![WhatsApp Image 2026-02-09 at 3 06 14 PM](https://github.com/user-attachments/assets/f5495906-0cb2-491c-84c7-ace5ef989b2a)
-![WhatsApp Image 2026-02-09 at 2 58 32 PM](https://github.com/user-attachments/assets/ce3833ba-ae07-4496-84fe-f1e4ae2d5874)
+### Commands
 
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| Command | Action |
+|---------|---------|
+| on      | LED ON  |
+| off     | LED OFF |
 
-## Pressure and Temperature checking
-Components used are STM32f411vet6, BMP280(pressure sensor)
-Connections: Connect BMP280 to STM32 and Vcc is 3.3V (using voltage divider)
+---
 
-<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/c3002d11-25cd-4d49-8c42-fffe193b091b" />
-<img width="1522" height="749" alt="image" src="https://github.com/user-attachments/assets/5e6b0856-10d8-48f9-938c-a43906d89389" />
+## 🏠 Home Automation using STM32 and HC-05
 
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-## LED Blinking
-## LED with Switch
-## LDR
-## Soil Moisture Sensor
-## IR Sensor
-## ADC
-## ADC with interrupt
-## Systick timer
-## Timer
-## Timer with delay
-## Timer with interrupt
+A simple home automation system to control an LED wirelessly using Bluetooth.
+
+### Commands
+
+| Command | Action |
+|---------|---------|
+| 1       | LED ON  |
+| 0       | LED OFF |
+
+---
+
+## 🌡️ Pressure and Temperature Monitoring using BMP280 (SPI)
+
+This project reads temperature and pressure data from BMP280 sensor using SPI.
+
+### Features
+- SPI Communication
+- Real-time Monitoring
+- UART Output
+
+### Voltage Warning
+BMP280 works at **3.3V logic level**. Use a level shifter if required.
+
+---
+
+## 🔗 I2C Communication using STM32
+
+Demonstrates I2C Master communication using STM32F411.
+
+### I2C Pins
+
+| STM32 Pin | Function |
+|-----------|----------|
+| PB8       | SCL      |
+| PB9       | SDA      |
+
+---
+
+## 🚶 Smart Person Entry Monitoring System
+
+A smart embedded system to count people entering using:
+
+- LDR Sensor
+- Laser Module
+- OLED Display
+- Buzzer
+
+### Working Principle
+1. Laser continuously shines on LDR
+2. Beam interruption is detected
+3. Counter increases
+4. Buzzer beeps
+5. OLED updates count
+
+### Connections
+
+#### OLED (I2C)
+
+| OLED | STM32 |
+|------|--------|
+| VCC  | 3.3V   |
+| GND  | GND    |
+| SCL  | PB8    |
+| SDA  | PB9    |
+
+#### Laser
+
+| Laser | STM32 |
+|-------|--------|
+| Signal| PB0    |
+
+#### Buzzer
+
+| Buzzer | STM32 |
+|--------|--------|
+| IN     | PB1    |
+
+#### LDR
+
+| LDR | STM32 |
+|-----|--------|
+| D0  | PA1    |
+
+---
+
+## 💻 Software Used
+- STM32CubeIDE
+- HAL Drivers
+- Embedded C
+- UART / SPI / I2C Protocols
+
+---
+
+## 📚 Additional Projects
+
+- LED Blinking
+- LED with Switch
+- LDR Sensor
+- Soil Moisture Sensor
+- IR Sensor
+- ADC
+- ADC with Interrupt
+- SysTick Timer
+- Timers with Interrupt
+- UART with Interrupt
+- SPI Communication
+- I2C Communication
+- Bluetooth Control
+- BMP280 Sensor
+
+---
+
+## 📜 License
+This repository is open-source and free to use for educational purposes.
