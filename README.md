@@ -29,7 +29,7 @@ The STM32F411VET6 uses Harvard architecture with a 3-stage pipeline, enabling fa
 
 Refer to the pinout diagram below:
 
-![STM32F411 Pinout](https://github.com/user-attachments/assets/bcb766ee-6d64-48ed-9aaf-557b12a3e8de)
+[STM32F411 Pinout](https://github.com/user-attachments/assets/bcb766ee-6d64-48ed-9aaf-557b12a3e8de)
 
 ---
 
