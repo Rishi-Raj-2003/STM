@@ -73,6 +73,12 @@ This project demonstrates wireless LED control using STM32F411VET6 and HC-05 Blu
 
 Users can send `on` and `off` commands using a mobile app to control an LED.
 
+### 📸 Project Images
+
+[<img width="692" height="1536" alt="image" src="https://github.com/user-attachments/assets/1deafa98-5ce0-4481-97fb-904bd466de73" />](https://chatgpt.com/backend-api/estuary/content?id=file_0000000038c072068e85d8cdb9522105&ts=491722&p=fs&cid=1&sig=a2c2f0cda3b284b978ad29dd3b1f4c431bf2d57bf6889643354fc5f1a486a1f0&v=0)
+
+<img width="694" height="1536" alt="image" src="https://github.com/user-attachments/assets/24f418b1-cc2c-473e-843d-ce79be51ae78" />
+
 ### Components
 - STM32F411VET6
 - HC-05 Bluetooth Module
@@ -92,6 +98,11 @@ Users can send `on` and `off` commands using a mobile app to control an LED.
 
 A simple home automation system to control an LED wirelessly using Bluetooth.
 
+### 📸 Project Images
+
+![WhatsApp Image 2026-02-09 at 3 06 14 PM](https://github.com/user-attachments/assets/f5495906-0cb2-491c-84c7-ace5ef989b2a)
+![WhatsApp Image 2026-02-09 at 2 58 32 PM](https://github.com/user-attachments/assets/ce3833ba-ae07-4496-84fe-f1e4ae2d5874)
+
 ### Commands
 
 | Command | Action |
@@ -104,6 +115,12 @@ A simple home automation system to control an LED wirelessly using Bluetooth.
 ## 🌡️ Pressure and Temperature Monitoring using BMP280 (SPI)
 
 This project reads temperature and pressure data from BMP280 sensor using SPI.
+
+### 📸 Project Images
+
+<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/c3002d11-25cd-4d49-8c42-fffe193b091b" />
+
+<img width="1522" height="749" alt="image" src="https://github.com/user-attachments/assets/5e6b0856-10d8-48f9-938c-a43906d89389" />
 
 ### Features
 - SPI Communication
@@ -118,6 +135,11 @@ BMP280 works at **3.3V logic level**. Use a level shifter if required.
 ## 🔗 I2C Communication using STM32
 
 Demonstrates I2C Master communication using STM32F411.
+
+### 📸 Project Images
+
+<img width="452" height="755" alt="image" src="https://github.com/user-attachments/assets/e0edb617-fdcd-4bfd-9fb3-c55c278a0eb9" />
+<img width="1916" height="1079" alt="image" src="https://github.com/user-attachments/assets/daaf24c4-68d2-410b-9e4a-90c01aa4412d" />
 
 ### I2C Pins
 
@@ -136,6 +158,10 @@ A smart embedded system to count people entering using:
 - Laser Module
 - OLED Display
 - Buzzer
+
+### 📸 Project Setup
+
+![WhatsApp Image 2026-02-18 at 2 54 35 PM](https://github.com/user-attachments/assets/81edfbb8-50ca-4e13-a275-4ccf7d493a65)
 
 ### Working Principle
 1. Laser continuously shines on LDR
