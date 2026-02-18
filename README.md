@@ -58,8 +58,7 @@ Refer to the pinout diagram below:
 
 ---
 
-## Author
-**Jeffin Paul**
+
 
 ---
 
