@@ -1,0 +1,441 @@
+main.c
+
+#include "stm32f4xx.h"
+#include <stdint.h>
+
+/* ================= CONFIG ================= */
+
+#define OLED_ADDR  0x3C   // 7-bit address
+
+/* ================= SIMPLE DELAY ================= */
+
+void delay_ms(uint32_t ms)
+{
+    for(uint32_t i=0;i<ms*16000;i++);
+}
+
+/* ================= I2C INIT ================= */
+
+void I2C1_init(void)
+{
+    RCC->AHB1ENR |= (1<<1);      // GPIOB
+    RCC->APB1ENR |= (1<<21);     // I2C1
+
+    /* PB6 SCL, PB7 SDA */
+    GPIOB->MODER &= ~((3<<12)|(3<<14));
+    GPIOB->MODER |=  ((2<<12)|(2<<14));   // AF mode
+
+    GPIOB->OTYPER |= (1<<6)|(1<<7);       // Open drain
+    GPIOB->OSPEEDR |= (3<<12)|(3<<14);    // High speed
+
+    GPIOB->PUPDR &= ~((3<<12)|(3<<14));
+    GPIOB->PUPDR |=  ((1<<12)|(1<<14));   // Pull-up
+
+    GPIOB->AFR[0] &= ~((0xF<<24)|(0xF<<28));
+    GPIOB->AFR[0] |=  ((4<<24)|(4<<28));  // AF4 I2C
+
+    /* Reset I2C */
+    I2C1->CR1 |= (1<<15);
+    I2C1->CR1 &= ~(1<<15);
+
+    /* 16 MHz PCLK1 */
+    I2C1->CR2   = 16;
+    I2C1->CCR   = 80;      // 100kHz
+    I2C1->TRISE = 17;
+
+    I2C1->CR1 |= 1;        // Enable
+}
+
+/* ================= LOW LEVEL WRITE ================= */
+
+void I2C_write_multi(uint8_t control, uint8_t *data, uint16_t size)
+{
+    I2C1->CR1 |= (1<<8);                  // START
+    while(!(I2C1->SR1 & (1<<0)));
+
+    I2C1->DR = (OLED_ADDR << 1);          // address write
+    while(!(I2C1->SR1 & (1<<1)));
+    (void)I2C1->SR2;
+
+    while(!(I2C1->SR1 & (1<<7)));
+    I2C1->DR = control;
+
+    for(uint16_t i=0;i<size;i++)
+    {
+        while(!(I2C1->SR1 & (1<<7)));
+        I2C1->DR = data[i];
+    }
+
+    while(!(I2C1->SR1 & (1<<2)));          // BTF wait
+
+    I2C1->CR1 |= (1<<9);                  // STOP
+}
+
+/* ================= OLED COMMAND ================= */
+
+void OLED_cmd(uint8_t cmd)
+{
+    I2C_write_multi(0x00, &cmd, 1);
+}
+
+/* ================= OLED DATA ================= */
+
+void OLED_data(uint8_t *data, uint16_t size)
+{
+    I2C_write_multi(0x40, data, size);
+}
+
+/* ================= OLED INIT ================= */
+
+void OLED_init(void)
+{
+    delay_ms(100);
+
+    OLED_cmd(0xAE);
+    OLED_cmd(0x20); OLED_cmd(0x00);   // Horizontal mode
+    OLED_cmd(0xB0);
+    OLED_cmd(0xC8);
+    OLED_cmd(0x00);
+    OLED_cmd(0x10);
+    OLED_cmd(0x40);
+    OLED_cmd(0x81); OLED_cmd(0x7F);
+    OLED_cmd(0xA1);
+    OLED_cmd(0xA6);
+    OLED_cmd(0xA8); OLED_cmd(0x3F);
+    OLED_cmd(0xA4);
+    OLED_cmd(0xD3); OLED_cmd(0x00);
+    OLED_cmd(0xD5); OLED_cmd(0x80);
+    OLED_cmd(0xD9); OLED_cmd(0xF1);
+    OLED_cmd(0xDA); OLED_cmd(0x12);
+    OLED_cmd(0xDB); OLED_cmd(0x40);
+    OLED_cmd(0x8D); OLED_cmd(0x14);
+    OLED_cmd(0xAF);
+}
+
+/* ================= CLEAR ================= */
+
+void OLED_clear(void)
+{
+    uint8_t zero[128];
+    for(int i=0;i<128;i++) zero[i]=0x00;
+
+    for(int page=0; page<8; page++)
+    {
+        OLED_cmd(0xB0 + page);
+        OLED_cmd(0x00);
+        OLED_cmd(0x10);
+        OLED_data(zero,128);
+    }
+}
+
+/* ================= MAIN ================= */
+
+int main(void)
+{
+    I2C1_init();
+    OLED_init();
+    OLED_clear();
+
+    while(1)
+    {
+        // Fill screen test (to verify clean output)
+        uint8_t full[128];
+        for(int i=0;i<128;i++) full[i]=0xFF;
+
+        for(int page=0; page<8; page++)
+        {
+            OLED_cmd(0xB0 + page);
+            OLED_cmd(0x00);
+            OLED_cmd(0x10);
+            OLED_data(full,128);
+        }
+
+        delay_ms(1000);
+        OLED_clear();
+        delay_ms(1000);
+    }
+}
+
+SPI.c
+
+#include "SPI.h"
+
+
+#define SPI1EN			(1U<<12)
+#define GPIOAEN			(1U<<0)
+
+#define SR_TXE			(1U<<1)
+#define SR_RXNE			(1U<<0)
+
+#define SR_BSY			(1U<<7)
+
+
+//PA5 -> CLK
+//PA6 -> MISO
+//PA7 -> MOSI
+//PA9 -> Slave Select
+
+
+void spi_gpio_init(void)
+{
+	/*Enable clock access to GPIOA :: 6.3.9 RCC AHB1ENR REFERENCE MANUAL*/
+	RCC->AHB1ENR |= GPIOAEN;
+
+	/*Set PA5,PA6,PA7 mode to alternate function
+	 * ALTERANTE FUNCTION MAPPING TABLE NO:9 DATASHEET*/
+
+	/*PA5*/
+	GPIOA->MODER &=~(1U<<10);
+	GPIOA->MODER |=(1U<<11);
+
+	/*PA6*/
+	GPIOA->MODER &=~(1U<<12);
+	GPIOA->MODER |=(1U<<13);
+
+	/*PA7*/
+	GPIOA->MODER &=~(1U<<14);
+	GPIOA->MODER |=(1U<<15);
+
+
+	/*Set PA9 as output pin*/
+	GPIOA->MODER |=(1U<<18);
+	GPIOA->MODER &=~(1U<<19);
+
+	/* High speed for SPI pins */
+	GPIOA->OSPEEDR |= (3U<<10) | (3U<<12) | (3U<<14);
+
+	/* Push-pull */
+	GPIOA->OTYPER &= ~((1U<<5) | (1U<<6) | (1U<<7));
+
+	/* No pull-up/down */
+	GPIOA->PUPDR &= ~((3U<<10) | (3U<<12) | (3U<<14));
+
+	/*Set PA5,PA6,PA7 alternate function type to SPI1
+	 * 8.4.9 GPIO ALTERNATE FUNCTION REFERENCE MANUAL*/
+	/*PA5*/
+	GPIOA->AFR[0] |=(1U<<20);
+	GPIOA->AFR[0] &= ~(1U<<21);
+	GPIOA->AFR[0] |=(1U<<22);
+	GPIOA->AFR[0] &= ~(1U<<23);
+
+	/*PA6*/
+	GPIOA->AFR[0] |=(1U<<24);
+	GPIOA->AFR[0] &= ~(1U<<25);
+	GPIOA->AFR[0] |=(1U<<26);
+	GPIOA->AFR[0] &= ~(1U<<27);
+
+	/*PA7*/
+	GPIOA->AFR[0] |=(1U<<28);
+	GPIOA->AFR[0] &= ~(1U<<29);
+	GPIOA->AFR[0] |=(1U<<30);
+	GPIOA->AFR[0] &= ~(1U<<31);
+
+	cs_disable();
+
+
+}
+
+void spi1_config(void)
+{
+	/*Enable clock access to SPI1 module :: 6.3.12 RCC APB2ENR REFERENCE MANUAL*/
+	RCC->APB2ENR |= SPI1EN;
+
+	/*Set clock to fPCLK/4
+	 * DEFAULT FREQUENCY OF STM32F411 IS 16MHz
+	 * 20.5.1 SPI CONTROL REGISTER 1*/
+	SPI1->CR1 |= (1U<<3) | (1U<<5);  // fPCLK/64
+	SPI1->CR1 &= ~(1U<<4);
+
+	/*Set CPOL to 0 and CPHA to 0*/
+	SPI1->CR1 &= ~(1U<<0);
+	SPI1->CR1 &= ~(1U<<1);
+
+	/*Enable full duplex*/
+	SPI1->CR1 &=~(1U<<10);
+
+	/*Set MSB first*/
+	SPI1->CR1 &= ~(1U<<7);
+
+	/*Set mode to MASTER
+	 * MASTER --> STM32
+	 * SLAVE --> MPU6050*/
+	SPI1->CR1 |= (1U<<2);
+
+	/*Set 8 bit data mode*/
+	SPI1->CR1 &= ~(1U<<11);
+
+	/*Select software slave management by
+	 * setting SSM=1 and SSI=1*/
+	SPI1->CR1 |= (1<<8);
+	SPI1->CR1 |= (1<<9);
+
+	/*Enable SPI module*/
+	SPI1->CR1 |= (1<<6);
+
+}
+
+void spi1_transmit(uint8_t *data,uint32_t size)
+{
+	uint32_t i=0;
+	uint8_t temp;
+
+	while(i<size)
+	{
+		/*Wait until TXE is set
+		 * 20.5.3 SPI STATUS REGISTER*/
+		while(!(SPI1->SR & (SR_TXE)))
+		{
+
+		}
+
+		/*Write the data to the data register*/
+		SPI1->DR = data[i];
+		i++;
+	}
+	/*Wait until TXE is set*/
+	while(!(SPI1->SR & (SR_TXE)))
+	{
+
+	}
+
+	/*Wait for BUSY flag to reset
+	 * 20.5.3 SPI STATUS REGISTER*/
+	while((SPI1->SR & (SR_BSY))){}
+
+	/*Clear OVR flag
+	 * 20.4.8 ERROR FLAGS -> OVERRUN FLAG*/
+	temp = SPI1->DR;
+	temp = SPI1->SR;
+}
+
+void spi1_receive(uint8_t *data,uint32_t size)
+{
+	while(size)
+	{
+	    while(!(SPI1->SR & SR_TXE));
+	    *((volatile uint8_t*)&SPI1->DR) = 0x00;
+
+	    while(!(SPI1->SR & SR_RXNE));
+	    *data++ = *((volatile uint8_t*)&SPI1->DR);
+	    size--;
+	}
+}
+
+
+void cs_enable(void)
+{
+	//8.4.6 GPIO OUTPUT DATA REGISTER
+	GPIOA->ODR &=~(1U<<9);
+
+}
+
+/*Pull high to disable*/
+void cs_disable(void)
+{
+	GPIOA->ODR |=(1U<<9);
+}
+
+RFID.c
+
+#include "rfid.h"
+#include "SPI.h"
+
+/* MFRC522 registers */
+#define CommandReg      0x01
+#define ComIEnReg       0x02
+#define DivIEnReg       0x03
+#define ComIrqReg       0x04
+#define ErrorReg        0x06
+#define FIFODataReg     0x09
+#define FIFOLevelReg    0x0A
+#define ControlReg      0x0C
+#define BitFramingReg   0x0D
+#define ModeReg         0x11
+#define TxControlReg    0x14
+
+#define PCD_IDLE        0x00
+#define PCD_TRANSCEIVE  0x0C
+
+#define PICC_REQIDL     0x26
+
+static uint8_t spi_rx;
+
+/* ---------- SPI helpers ---------- */
+
+uint8_t rfid_read(uint8_t reg)
+{
+    uint8_t addr = ((reg << 1) & 0x7E) | 0x80;
+
+    cs_enable();
+
+    // send register address
+    spi1_transmit(&addr,1);
+
+    // receive byte (dummy clock generated inside)
+    spi1_receive(&spi_rx,1);
+
+    cs_disable();
+
+    return spi_rx;
+}
+
+void rfid_write(uint8_t reg, uint8_t data)
+{
+    uint8_t addr = (reg << 1) & 0x7E;
+
+    cs_enable();
+
+    spi1_transmit(&addr,1);
+    spi1_transmit(&data,1);
+    cs_disable();
+}
+
+/* ---------- MFRC522 init ---------- */
+
+void rfid_init(void)
+{
+    rfid_write(CommandReg, PCD_IDLE);
+    rfid_write(ModeReg, 0x3D);
+    rfid_write(TxControlReg, 0x83);
+}
+
+/* ---------- Request card ---------- */
+
+uint8_t rfid_request(uint8_t *uid)
+{
+    uint8_t buffer[2];
+    uint8_t i;
+
+    rfid_write(CommandReg, PCD_IDLE);
+
+    rfid_write(ComIrqReg, 0x7F);   // ⭐ CLEAR ALL IRQ FLAGS
+    rfid_write(FIFOLevelReg, 0x80); // flush FIFO
+    rfid_write(BitFramingReg, 0x00);
+
+    buffer[0] = 0x93;
+    buffer[1] = 0x20;
+
+    for(i=0;i<2;i++)
+        rfid_write(FIFODataReg, buffer[i]);
+
+    rfid_write(CommandReg, PCD_TRANSCEIVE);
+    rfid_write(BitFramingReg, 0x80); // start send
+
+    // ⭐ WAIT until RX complete
+    uint32_t timeout = 10000;
+    while(!(rfid_read(ComIrqReg) & 0x30))
+    {
+        if(--timeout == 0)
+            return 0;
+    }
+
+    // ⭐ CHECK ERROR
+    if(rfid_read(ErrorReg) != 0)
+        return 0;
+
+    for(i=0;i<5;i++)
+        uid[i] = rfid_read(FIFODataReg);
+
+    return 1;
+}
+
